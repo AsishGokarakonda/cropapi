@@ -29,10 +29,10 @@ class LoginView(APIView):
 
         payload={
             'id':user.id,
-            # exp is the expiration time
-            'exp':datetime.datetime.utcnow()+datetime.timedelta(minutes=120),
-            # iat is the time when the token was created
+            # keep token valid for 1 day and refresh if a user logs in again
+            'exp':datetime.datetime.utcnow()+datetime.timedelta(days=2),
             'iat':datetime.datetime.utcnow()
+
         }
         token=jwt.encode(payload,'secret',algorithm='HS256')
         response = Response()
