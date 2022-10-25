@@ -17,6 +17,43 @@ class RegisterView(APIView):
             return Response(serializer.errors)
 
 
+class RegisterSuperUserView(APIView):
+    def post(self,request):
+        # keep is_superuser=True from abstractuser
+        request.data['is_superuser']=True
+        request.data['name']="Admin"
+        serializer= UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+
+class LoginSuperUserView(APIView):
+    def post(self,request):
+        username=request.data['username']
+        password=request.data['password']
+        user = User.objects.get(username=username)
+        if user is None or user.is_superuser==False:
+            return Response({'error':'User not found','status':'failure'})
+        if not user.check_password(password):
+            return Response({'error':'Password is incorrect','status':'failure'})
+        payload={
+            'id':user.id,
+            # keep token valid for 1 day and refresh if a user logs in again
+            'exp':datetime.datetime.utcnow()+datetime.timedelta(days=2),
+            'iat':datetime.datetime.utcnow()
+        }
+        token=jwt.encode(payload,'secret',algorithm='HS256')
+        response = Response()
+        response.set_cookie(key='jwt',value=token,httponly=True)
+        response.data={
+            'jwt':token,
+            'status':'success'
+        }
+        return response
+         
 
 class LoginView(APIView):
     def post(self,request):
@@ -24,7 +61,8 @@ class LoginView(APIView):
         password=request.data['password']
 
         user=User.objects.filter(username=username).first()
-        if user is None:
+        # if user is not superuser
+        if user is None or user.is_superuser==True:
             return Response({'error':'User not found','status':'failure'})
         if not user.check_password(password):
             return Response({'error':'Wrong password','status':'failure'})
