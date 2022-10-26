@@ -6,7 +6,7 @@ import numpy as np
 
 import sys
  
-path = 'cropapi/myauth/output.tx'
+path = 'cropapi/myauth/output.txt'
 sys.stdout = open(path, 'w')
 
 class_names = ['Banana Bacterial Segota', 'Banana Bacterial Wilt', 'Banana Healthy']

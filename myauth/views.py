@@ -142,3 +142,34 @@ class CropListView(APIView):
         serializer=CropSerializer(crops,many=True)
         return Response(serializer.data)
 
+# get all user details for admin
+class UserListView(APIView):
+    def get(self,request):
+        # get jwt token from header and decode it to get user id and save it to crop model
+        token=request.headers['jwt']
+        payload=jwt.decode(token,'secret',algorithms=['HS256'])
+        user=User.objects.filter(id=payload['id']).first()
+        if user.is_superuser==False:
+            return Response({'error':'Not allowed','status':'failure'})
+        users=User.objects.all()
+        serializer=UserSerializer(users,many=True)
+        return Response(serializer.data)
+
+#get latitude and longitude of all the users for admin
+class UserLocationView(APIView):
+    def get(self,request):
+        # get jwt token from header and decode it to get user id and save it to crop model
+        token=request.headers['jwt']
+        payload=jwt.decode(token,'secret',algorithms=['HS256'])
+        user=User.objects.filter(id=payload['id']).first()
+        if user.is_superuser==False:
+            return Response({'error':'Not allowed','status':'failure'})
+        users=User.objects.all()
+        serializer=UserSerializer(users,many=True)
+        # get latitude and longitude of all the users
+        data=serializer.data
+        locations=[]
+        for user in data:
+            locations.append([user['latitude'],user['longitude']])
+        return Response(locations)
+
