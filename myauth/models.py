@@ -16,9 +16,9 @@ class User(AbstractUser):
     USERNAME_FIELD = 'username'
 
 
-class Crop(models.Model):
-    # this user comes from jwt token from url
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    crop_name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='crops')
-    cropdisease = models.CharField(max_length=100, default='')
+# class Crop(models.Model):
+#     # this user comes from jwt token from url
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     crop_name = models.CharField(max_length=100)
+#     image = models.ImageField(upload_to='crops')
+#     cropdisease = models.CharField(max_length=100, default='')

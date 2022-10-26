@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Crop
+# from .models import Crop
 from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -18,8 +18,8 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-class CropSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=Crop
-        fields=['id','user','crop_name','image','cropdisease']
+# class CropSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model=Crop
+#         fields=['id','user','crop_name','image','cropdisease']
         
