@@ -1,24 +1,29 @@
+from cProfile import label
 import cv2
 import tensorflow as tf
 #import matplotlib.pyplot as plt
 import numpy as np
-
-
 import sys
- 
+
+#Print output in output.txt 
 path = 'cropapi/myauth/output.tx'
 sys.stdout = open(path, 'w')
 
+#Model classifies the picture into the following "classes"
 class_names = ['Banana Bacterial Segota', 'Banana Bacterial Wilt', 'Banana Healthy']
 
+#Preprocessing and resizing the image
 def prepare(filepath):
     IMG_SIZE = 256  
     img_array = cv2.imread(filepath)  # read in the image
     new_array = cv2.resize(img_array, (IMG_SIZE, IMG_SIZE))  # resize image to match model's expected sizing
     return new_array.reshape(32, IMG_SIZE, IMG_SIZE, 3)  # return the image with shaping that TF wants.
 
+#loading the ML model
 model = tf.keras.models.load_model("cropapi/myauth/BananaModel.h5")
 
+#defining predict function 
+#takes in input as a folder of images
 def predict(model, img):
     img_array = tf.keras.preprocessing.image.img_to_array(images[i].numpy())
     img_array = tf.expand_dims(img_array, 0)
