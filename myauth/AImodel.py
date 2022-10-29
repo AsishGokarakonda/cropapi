@@ -4,9 +4,8 @@ import tensorflow as tf
 #import matplotlib.pyplot as plt
 import numpy as np
 import sys
-
-#Print output in output.txt 
-path = 'cropapi/myauth/output.tx'
+ 
+path = 'cropapi/myauth/output.txt'
 sys.stdout = open(path, 'w')
 
 #Model classifies the picture into the following "classes"
