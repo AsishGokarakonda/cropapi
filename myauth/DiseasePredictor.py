@@ -2,6 +2,9 @@ from cProfile import label
 import tensorflow as tf
 import numpy as np
 import sys
+import os
+import glob
+import re
 
 # File where output is sent
 path = 'myauth/output.txt'
@@ -33,14 +36,25 @@ def predict(model, img, i):
     # confidence = round(100 * (np.max(predictions[0])), 2)
     return predicted_class
 
+
+def sorted_alphanumeric(data):
+    convert = lambda text: int(text) if text.isdigit() else text.lower()
+    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ] 
+    return sorted(data, key=alphanum_key)
+
+
 # Initializing the predicted outcome to be NULL
 prediction = "NULL"
-
+ImageList = os.listdir("myauth/BananaPictures/Banana Healthy")
+ImageList = sorted_alphanumeric(ImageList)
 # Predicting the disease in the image
 for images, labels in dataset:
     for i in range(len(images)):
         if (i==len(images)-1):
+            Name = ImageList[i]
             predicted_class = predict(model, images[len(images) -1].numpy(), len(images) -1)
             prediction = predicted_class
 
+
 print (prediction)
+print(Name)
