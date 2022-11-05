@@ -34,27 +34,33 @@ class RegisterSuperUserView(APIView):
 
 class LoginSuperUserView(APIView):
     def post(self,request):
-        username=request.data['username']
-        password=request.data['password']
-        user = User.objects.get(username=username)
-        if user is None or user.is_superuser==False:
-            return Response({'error':'User not found','status':'failure'})
-        if not user.check_password(password):
-            return Response({'error':'Password is incorrect','status':'failure'})
-        payload={
-            'id':user.id,
-            # keep token valid for 1 day and refresh if a user logs in again
-            'exp':datetime.datetime.utcnow()+datetime.timedelta(days=2),
-            'iat':datetime.datetime.utcnow()
-        }
-        token=jwt.encode(payload,'secret',algorithm='HS256')
-        response = Response()
-        response.set_cookie(key='jwt',value=token,httponly=True)
-        response.data={
-            'jwt':token,
-            'status':'success'
-        }
-        return response
+        try:
+            username=request.data['username']
+            password=request.data['password']
+            try:
+                user = User.objects.get(username=username)
+                if user is None or user.is_superuser==False:
+                    return Response({'error':'User not found','status':'failure'})
+                if not user.check_password(password):
+                    return Response({'error':'Password is incorrect','status':'failure'})
+                payload={
+                    'id':user.id,
+                    # keep token valid for 1 day and refresh if a user logs in again
+                    'exp':datetime.datetime.utcnow()+datetime.timedelta(days=2),
+                    'iat':datetime.datetime.utcnow()
+                }
+                token=jwt.encode(payload,'secret',algorithm='HS256')
+                response = Response()
+                response.set_cookie(key='jwt',value=token,httponly=True)
+                response.data={
+                    'jwt':token,
+                    'status':'success'
+                }
+                return response
+            except:
+                return Response({'error':'User not found','status':'failure'})
+        except:
+            return Response({'error':'Username and password are required','status':'failure'})
          
 
 class LoginView(APIView):
@@ -168,10 +174,7 @@ class UserLocationView(APIView):
             return Response({'error':'Not allowed','status':'failure'})
         users=User.objects.all()
         serializer=UserSerializer(users,many=True)
-        # get latitude and longitude of all the users
         data=serializer.data
-        locations=[]
-        for user in data:
-            locations.append([user['latitude'],user['longitude']])
-        return Response(locations)
+        return Response(serializer.data)
+
 

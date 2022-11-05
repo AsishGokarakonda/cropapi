@@ -1,4 +1,5 @@
 from asyncio.windows_events import NULL
+from email.policy import default
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
@@ -8,6 +9,7 @@ class User(AbstractUser):
     name=models.CharField(max_length=100)
     email=models.EmailField(max_length=255,unique=True)
     password=models.CharField(max_length=255)
+    area=models.FloatField(default=0.0)
     latitude=models.DecimalField(max_digits=9,decimal_places=7,default=NULL)
     longitude=models.DecimalField(max_digits=9,decimal_places=7,default=NULL)
     is_superuser=models.BooleanField(default=False)
