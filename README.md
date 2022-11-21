@@ -9,7 +9,7 @@
 `python -m venv env`
 3. Activate the environment with this command <br>
    `.\venv\Scripts\activate`
-4. Install the dependencies <br>
+4. Open terminal in this folder and install the dependencies <br>
    `pip install -r requirements.txt`
 
 ### Running the Application
