@@ -6,7 +6,7 @@ from .models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model=User
-        fields=['id','username','name','email','password','latitude','longitude','is_superuser','area']
+        fields=['id','username','name','email','password','is_superuser']
         # THIS IS THE LINE THAT MAKES THE PASSWORD NOT VISIBLE
         extra_kwargs={'password':{'write_only':True}}
         
