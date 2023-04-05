@@ -14,10 +14,9 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['name','password']
     USERNAME_FIELD = 'username'
 
-
-# class Crop(models.Model):
-#     # this user comes from jwt token from url
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     crop_name = models.CharField(max_length=100)
-#     image = models.ImageField(upload_to='crops')
-#     cropdisease = models.CharField(max_length=100, default='')
+# create class fields for User model. Every User can have many fields and using username as a foreign key to link them
+class Field(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    latitude=models.DecimalField(max_digits=9,decimal_places=7,default=NULL)
+    longitude=models.DecimalField(max_digits=9,decimal_places=7,default=NULL)
+    area = models.FloatField(default=NULL)

@@ -50,6 +50,7 @@ class CropView(APIView):
         # print(request.data['image'])
         # print(request.data['image'].name)
         # request.data['image']=request.data['image'].name
+        # print(request.data['dayaftersowing'])
         serializer = CropSerializer(data=request.data)
 
         if serializer.is_valid():

@@ -2,9 +2,9 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from myauth.models import  User
+from myauth.models import  User, Field
 # from .models import Crop
-from .serializers import UserSerializer
+from .serializers import UserSerializer,FieldSerializer
 # from .serializers import CropSerializer
 import jwt,datetime
 
@@ -100,6 +100,20 @@ class UserProfileView(APIView):
         serializer=UserSerializer(user)
         return Response(serializer.data)
 
+class checkJwtValidatedView(APIView):
+    def get(self,request):
+        try:
+            token=request.headers['jwt']
+            payload=jwt.decode(token,'secret',algorithms=['HS256'])
+            user=User.objects.filter(id=payload['id']).first()
+            if user is None:
+                return Response({'status':'failure','error':'User not found'})
+            else:
+                return Response({'status':'success'})
+        except:
+            #401 means unauthorized
+            return Response({'status':'failure','error':'Invalid token'},status=401)
+
 class LogoutView(APIView):
     def post(self,request):
         response=Response()
@@ -113,42 +127,6 @@ class LogoutView(APIView):
                 'message':'failed'
             }
         return response
-
-# class CropView(APIView):
-#     def post(self,request):
-#         # get jwt token from header and decode it to get user id and save it to crop model
-#         token=request.headers['jwt']
-#         payload=jwt.decode(token,'secret',algorithms=['HS256'])
-#         user=User.objects.filter(id=payload['id']).first()
-#         request.data['user']=user.id
-#         # a ml model will be used to predict the disease and update the cropdisease field
-#         request.data['cropdisease']='tomato_blight'
-#         # keep only the image name in the database
-#         print(request.data['image'])
-#         print(request.data['image'].name)
-#         # request.data['image']=request.data['image'].name
-#         serializer = CropSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             # return Response(serializer.data)
-#             # return in array format to be used in the frontend
-#             return Response(serializer.data)
-#         else:
-#             return Response(serializer.errors)
-
-# class CropListView(APIView):
-#     def get(self,request):
-#         # get jwt token from header and decode it to get user id and save it to crop model
-#         token=request.headers['jwt']
-#         payload=jwt.decode(token,'secret',algorithms=['HS256'])
-#         user=User.objects.filter(id=payload['id']).first()
-#         crops=Crop.objects.filter(user=user)
-#         # truncate the image field string to get only last part of the path
-#         # for crop in crops:
-#         #     print(crop.image.name)
-#         #     crop.image= crop.image.name.rsplit('/', 1)[1]
-#         serializer=CropSerializer(crops,many=True)
-#         return Response(serializer.data)
 
 # get all user details for admin
 class UserListView(APIView):
@@ -172,9 +150,39 @@ class UserLocationView(APIView):
         user=User.objects.filter(id=payload['id']).first()
         if user.is_superuser==False:
             return Response({'error':'Not allowed','status':'failure'})
-        users=User.objects.all()
-        serializer=UserSerializer(users,many=True)
-        data=serializer.data
+        allfields=Field.objects.all()
+        serializer=FieldSerializer(allfields,many=True)
         return Response(serializer.data)
 
 
+class AddFieldView(APIView):
+    def post(self,request):
+        # get jwt token from header and decode it to get user id and save it to crop model
+        token=request.headers['jwt']
+        payload=jwt.decode(token,'secret',algorithms=['HS256'])
+        user=User.objects.filter(id=payload['id']).first()
+        if user.is_superuser==False:
+            # add field to user. We get user id from jwt token
+            #check if we can convert area to float
+            try:
+                request.data['area']=float(request.data['area'])
+            except:
+                # status code 400 means bad request
+                return Response({'error':'Area must be a number','status':'failure'},status=400)
+            if request.data['area']<=0:
+                # status code 400 means bad request
+                return Response({'error':'Area must be greater than 0','status':'failure'},status=400)
+            if request.data['latitude'] is None or request.data['longitude'] is None:
+                # status code 400 means bad request
+                return Response({'error':'Latitude and longitude are required','status':'failure'},status=400)
+            request.data['user']=user.id
+            serializer=FieldSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            else:
+                # status code 500 means internal server error
+                return Response(serializer.errors,status=500)
+        else:
+            # status code 403 means forbidden
+            return Response({'error':'Not allowed','status':'failure'},status=403)

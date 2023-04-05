@@ -9,3 +9,4 @@ class Crop(models.Model):
     crop_name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='crops')
     cropdisease = models.CharField(max_length=100, default='')
+    dayaftersowing = models.IntegerField(default=0)
