@@ -186,3 +186,17 @@ class AddFieldView(APIView):
         else:
             # status code 403 means forbidden
             return Response({'error':'Not allowed','status':'failure'},status=403)
+        
+class GetFieldListView(APIView):
+    def get(self,request):
+        # get jwt token from header and decode it to get user id and save it to crop model
+        token=request.headers['jwt']
+        payload=jwt.decode(token,'secret',algorithms=['HS256'])
+        user=User.objects.filter(id=payload['id']).first()
+        if user.is_superuser==False:
+            fields=Field.objects.filter(user=user)
+            serializer=FieldSerializer(fields,many=True)
+            return Response(serializer.data)
+        else:
+            # status code 403 means forbidden
+            return Response({'error':'Not allowed','status':'failure'},status=403)

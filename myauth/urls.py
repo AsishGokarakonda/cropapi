@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterView,LoginView,UserProfileView,LogoutView,RegisterSuperUserView,LoginSuperUserView, UserListView,UserLocationView,AddFieldView, checkJwtValidatedView
+from .views import RegisterView,LoginView,UserProfileView,LogoutView,RegisterSuperUserView,LoginSuperUserView, UserListView,UserLocationView,AddFieldView, checkJwtValidatedView, GetFieldListView
 # CropListView, CropView, 
 urlpatterns = [
     path('register/',RegisterView.as_view(),name='register'),
@@ -12,4 +12,5 @@ urlpatterns = [
     path('getusers/',UserListView.as_view(),name='getusers'),
     path('getuserlocation/',UserLocationView.as_view(),name='getuserlocation'),
     path('addfield/',AddFieldView.as_view(),name='addfield'),
+    path('getfields/',GetFieldListView.as_view(),name='getfields'),
 ]

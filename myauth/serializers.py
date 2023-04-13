@@ -26,4 +26,4 @@ class UserSerializer(serializers.ModelSerializer):
 class FieldSerializer(serializers.ModelSerializer):
     class Meta:
         model=Field
-        fields=['id','user','latitude','longitude','area']  
+        fields=['id','user','field_name','latitude','longitude','area']  
