@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'myauth',
-    'crops'
+    'crops',
+    'marketchoice',
 ]
 
 MIDDLEWARE = [

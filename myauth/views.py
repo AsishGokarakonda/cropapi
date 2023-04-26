@@ -161,6 +161,9 @@ class AddFieldView(APIView):
         token=request.headers['jwt']
         payload=jwt.decode(token,'secret',algorithms=['HS256'])
         user=User.objects.filter(id=payload['id']).first()
+        # check if user exists 
+        if user is None:
+            return Response({'error':'User not found','status':'failure'},status=400)
         if user.is_superuser==False:
             # add field to user. We get user id from jwt token
             #check if we can convert area to float
