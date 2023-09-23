@@ -179,6 +179,9 @@ class AddFieldView(APIView):
                 # status code 400 means bad request
                 return Response({'error':'Latitude and longitude are required','status':'failure'},status=400)
             request.data['user']=user.id
+            # get current date and save it to start_date field
+            request.data['start_date']=datetime.datetime.now()
+            request.data['cur_day']=request.data['start_day']
             serializer=FieldSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -200,6 +203,24 @@ class GetFieldListView(APIView):
             fields=Field.objects.filter(user=user)
             serializer=FieldSerializer(fields,many=True)
             return Response(serializer.data)
+        else:
+            # status code 403 means forbidden
+            return Response({'error':'Not allowed','status':'failure'},status=403)
+
+class UpdateCurDayView(APIView):
+    def put(self,request):
+        # get jwt token from header and decode it to get user id and save it to crop model
+        token=request.headers['jwt']
+        payload=jwt.decode(token,'secret',algorithms=['HS256'])
+        user=User.objects.filter(id=payload['id']).first()
+        if user.is_superuser==False:
+            fields=Field.objects.filter(user=user)
+            for field in fields:
+                diff = datetime.datetime.now().date()-field.start_date 
+                # diff is of type datetime.date. Convert it to int and add start_day to it
+                field.cur_day=diff.days+field.start_day
+                field.save()
+            return Response({'status':'success'})
         else:
             # status code 403 means forbidden
             return Response({'error':'Not allowed','status':'failure'},status=403)

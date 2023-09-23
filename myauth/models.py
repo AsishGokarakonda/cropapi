@@ -18,6 +18,10 @@ class User(AbstractUser):
 class Field(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     field_name=models.CharField(max_length=100,default=NULL)
+    crop_name=models.CharField(max_length=100,default='Cotton')
     latitude=models.DecimalField(max_digits=9,decimal_places=7,default=NULL)
     longitude=models.DecimalField(max_digits=9,decimal_places=7,default=NULL)
-    area = models.FloatField(default=NULL)
+    area = models.FloatField(default=0.0)
+    start_date=models.DateField(auto_now_add=True)
+    start_day=models.IntegerField(default=1)
+    cur_day=models.IntegerField(default=1)
