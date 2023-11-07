@@ -199,6 +199,8 @@ class GetFieldListView(APIView):
         token=request.headers['jwt']
         payload=jwt.decode(token,'secret',algorithms=['HS256'])
         user=User.objects.filter(id=payload['id']).first()
+        # call updatecurdayview to update cur_day field
+        UpdateCurDayView().put(request)
         if user.is_superuser==False:
             fields=Field.objects.filter(user=user)
             serializer=FieldSerializer(fields,many=True)
