@@ -25,3 +25,4 @@ class Field(models.Model):
     start_date=models.DateField(auto_now_add=True)
     start_day=models.IntegerField(default=1)
     cur_day=models.IntegerField(default=1)
+    coordinates=models.JSONField(default=dict)
