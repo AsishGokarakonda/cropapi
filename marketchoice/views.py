@@ -1,4 +1,5 @@
 from django.shortcuts import render
+import jwt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 import pickle
@@ -7,6 +8,9 @@ import pmdarima as pm
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+from marketchoice.serializers import MarketSerializer
+from marketchoice.models import Market
+from myauth.models import User
 # Create your views here.
 
 
@@ -76,11 +80,11 @@ class PredictMarketPrice(APIView):
         # save the plot as pricePrediction.png plt.
         # delete the previous plot before saving the new one
         
-        if os.path.exists('./static/crops/pricePrediction.png'):
-            os.remove('./static/crops/pricePrediction.png')
+        # if os.path.exists('./static/crops/pricePrediction.png'):
+        #     os.remove('./static/crops/pricePrediction.png')
 
-        plt.savefig('./static/crops/pricePrediction.png',
-                    dpi=300, bbox_inches='tight')
+        # plt.savefig('./static/crops/pricePrediction.png',
+        #             dpi=300, bbox_inches='tight')
 
         # Requested Variables:
 
@@ -91,3 +95,27 @@ class PredictMarketPrice(APIView):
         end = upper_series.idxmax().strftime('%b %Y')
 
         return Response({'min_price': min_price, 'max_price': max_price, 'avg_price': avg_price, 'start': start, 'end': end})
+
+class GetNearestMarkets(APIView):
+    def get(self, request):
+        latitude, longitude = request.headers['latitude'], request.headers['longitude']
+        latitude, longitude = float(latitude), float(longitude)
+        filtered_markets = Market.objects.filter(latitude__range=(latitude-0.3, latitude+0.3), longitude__range=(longitude-0.3, longitude+0.3))
+        # serialize the data
+        serializer = MarketSerializer(filtered_markets, many=True)
+        return Response(serializer.data)
+
+class AddNewMarket(APIView):
+    def post(self,request):
+        token=request.headers['jwt']
+        payload=jwt.decode(token,'secret',algorithms=['HS256'])
+        user=User.objects.filter(id=payload['id']).first()
+        if user.is_superuser==False:
+            return Response({'error':'Not allowed','status':'failure'})
+        market_name = request.data['name']
+        latitude = request.data['latitude']
+        longitude = request.data['longitude']
+        latitude, longitude = float(latitude), float(longitude)
+        market = Market(name=market_name, latitude=latitude, longitude=longitude)
+        market.save()
+        return Response({'message': 'Market added successfully','status':'success'})
